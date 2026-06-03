@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'stops',
+    'bus_route_number',
+    'route_stops',
 ]
 
 MIDDLEWARE = [
