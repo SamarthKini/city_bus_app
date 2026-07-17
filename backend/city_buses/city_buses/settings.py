@@ -11,7 +11,12 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+import dj_database_url
 
+
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -42,7 +47,7 @@ INSTALLED_APPS = [
     'stops',
     'bus_route_number',
     'route_stops',
-    'corsheaders',
+    # 'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -81,14 +86,17 @@ WSGI_APPLICATION = 'city_buses.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'city_bus_db',
-        'USER': 'postgres',
-        'PASSWORD': 'post123',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'city_bus_db',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'post123',
+    #     'HOST': 'localhost',
+    #     'PORT': '5432',
+    # }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL')
+    )
 }
 
 
