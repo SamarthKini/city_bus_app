@@ -6,12 +6,15 @@ from route_stops.models import RouteStopModel
 from route_stops.serializers import RouteStopSerializer
 from stops.models import StopModel
 from stops.serializers import StopSerializer
-from .serializers import ConnectionRouteSerializer
+from .serializers import *
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-
+from rest_framework.decorators import api_view
+from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from django.shortcuts import get_object_or_404
+# from 
 
 class StopViewset(viewsets.ModelViewSet):
     queryset = StopModel.objects.all()
@@ -135,3 +138,49 @@ class ConnectionRoutesAPIView(APIView):
         
         serializer = ConnectionRouteSerializer(connection_routes, many=True)
         return serializer.data
+    
+
+
+
+
+@api_view(['GET'])
+def nearest_stop_on_route(request):
+    lat = request.query_params.get('lat')
+    lng = request.query_params.get('lng')
+    route_number = request.query_params.get('route_number')
+
+    if not all([lat, lng, route_number]):
+        return Response(
+            {'error': 'Missing parameters. Provide lat, lng, and route_number.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        lat = float(lat)
+        lng = float(lng)
+    except ValueError:
+        return Response(
+            {'error': 'Invalid lat/lng values. Must be numbers.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    route = get_object_or_404(BusRouteNumberModel, bus_number=route_number)
+
+    user_location = Point(lng, lat, srid=4326)
+
+    route_stop_ids = RouteStopModel.objects.filter(route=route).values_list('stop_id', flat=True)
+
+    nearest_stop = StopModel.objects.filter(
+        id__in=route_stop_ids
+    ).annotate(
+        distance_meters=Distance('location', user_location)  
+    ).order_by('distance_meters').first()
+
+    if not nearest_stop:
+        return Response(
+            {'error': 'No stops found for this route.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = StopWithDistanceSerializer(nearest_stop)
+    return Response(serializer.data)
