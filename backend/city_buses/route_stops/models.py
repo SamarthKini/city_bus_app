@@ -9,7 +9,7 @@ class RouteStopModel(models.Model):
 
     class Meta:
         ordering = ['sequence']
-        unique_together = ('route', 'stop')
+        unique_together = (('route', 'stop'), ('route', 'sequence'))
         unique_together = ('route', 'sequence')    
 
     def __str__(self):

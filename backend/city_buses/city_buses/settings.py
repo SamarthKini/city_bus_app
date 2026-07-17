@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import dj_database_url
+from pathlib import Path
 
 
 load_dotenv()
@@ -48,7 +49,7 @@ INSTALLED_APPS = [
     'stops',
     'bus_route_number',
     'route_stops',
-    # 'corsheaders',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',   
     
 ]
 
@@ -101,7 +103,9 @@ DATABASES = {
 }
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
-
+# GDAL_LIBRARY_PATH = os.path.join(BASE_DIR, 'venv', 'Lib', 'site-packages', 'osgeo', 'gdal.dll')
+GEOS_LIBRARY_PATH = r'C:\Users\samar\Infosys\city_bus_app\backend\venv\Lib\site-packages\osgeo\geos_c.dll'
+GDAL_LIBRARY_PATH = r'C:\Users\samar\Infosys\city_bus_app\backend\venv\Lib\site-packages\osgeo\gdal.dll'
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
