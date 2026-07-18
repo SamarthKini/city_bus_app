@@ -88,19 +88,15 @@ WSGI_APPLICATION = 'city_buses.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# Database
+# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'city_bus_db',
-    #     'USER': 'postgres',
-    #     'PASSWORD': 'post123',
-    #     'HOST': 'localhost',
-    #     'PORT': '5432',
-    # }
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL')
     )
 }
+
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
 # GDAL_LIBRARY_PATH = os.path.join(BASE_DIR, 'venv', 'Lib', 'site-packages', 'osgeo', 'gdal.dll')
