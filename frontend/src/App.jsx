@@ -1,45 +1,59 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import Home from "./pages/Home";
-import Journey from "./pages/Journey";
-
-function getCurrentPage() {
-  return window.location.hash === "#/journey" ? "journey" : "home";
-}
+import Results from "./pages/Results";
+import RouteDetail from "./pages/RouteDetail";
+import LiveTracking from "./pages/LiveTracking";
 
 export default function App() {
-  const [page, setPage] = useState(getCurrentPage);
-  const [journey, setJourney] = useState(null);
+  const [currentView, setCurrentView] = useState("home");
+  const [selectedRouteId, setSelectedRouteId] = useState("rt_45");
+  const [sourceStopId, setSourceStopId] = useState(null);
+  const [destinationStopId, setDestinationStopId] = useState(null);
 
-  useEffect(() => {
-    function handleHashChange() {
-      setPage(getCurrentPage());
-    }
-
-    window.addEventListener("hashchange", handleHashChange);
-
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange);
-    };
-  }, []);
-
-  function startJourney(route) {
-    setJourney(route);
-    window.location.hash = "/journey";
-  }
-
-  function returnHome() {
-    window.location.hash = "/";
-  }
-
-  if (page === "journey") {
+  if (currentView === "results") {
     return (
-      <Journey
-        journey={journey}
-        onBack={returnHome}
+      <Results
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        setSelectedRouteId={setSelectedRouteId}
+        sourceStopId={sourceStopId}
+        destinationStopId={destinationStopId}
       />
     );
   }
 
-  return <Home onStartJourney={startJourney} />;
+  if (currentView === "detail") {
+    return (
+      <RouteDetail
+        currentView={currentView}
+        selectedRouteId={selectedRouteId}
+        sourceStopId={sourceStopId}
+        destinationStopId={destinationStopId}
+        setCurrentView={setCurrentView}
+        setSelectedRouteId={setSelectedRouteId}
+      />
+    );
+  }
+
+  if (currentView === "live") {
+    return (
+      <LiveTracking
+        currentView={currentView}
+        selectedRouteId={selectedRouteId}
+        setCurrentView={setCurrentView}
+      />
+    );
+  }
+
+  return (
+    <Home
+      currentView={currentView}
+      setCurrentView={setCurrentView}
+      onJourneySearch={(sourceId, destinationId) => {
+        setSourceStopId(sourceId);
+        setDestinationStopId(destinationId);
+      }}
+    />
+  );
 }

@@ -17,6 +17,14 @@ export default function useLocation() {
       return undefined;
     }
 
+    // function updatePosition(position) {
+    //   setLocation({
+    //     latitude: position.coords.latitude,
+    //     longitude: position.coords.longitude,
+    //     error: "",
+    //     isLoading: false,
+    //   });
+    // }
     function updatePosition(position) {
       setLocation({
         latitude: position.coords.latitude,

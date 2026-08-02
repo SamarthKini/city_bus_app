@@ -100,8 +100,10 @@ DATABASES = {
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
 # GDAL_LIBRARY_PATH = os.path.join(BASE_DIR, 'venv', 'Lib', 'site-packages', 'osgeo', 'gdal.dll')
-GEOS_LIBRARY_PATH = r'C:\Users\samar\Infosys\city_bus_app\backend\venv\Lib\site-packages\osgeo\geos_c.dll'
-GDAL_LIBRARY_PATH = r'C:\Users\samar\Infosys\city_bus_app\backend\venv\Lib\site-packages\osgeo\gdal.dll'
+# GEOS_LIBRARY_PATH = r'C:\Users\samar\Infosys\city_bus_app\backend\venv\Lib\site-packages\osgeo\geos_c.dll'
+# GDAL_LIBRARY_PATH = r'C:\Users\samar\Infosys\city_bus_app\backend\venv\Lib\site-packages\osgeo\gdal.dll'
+GEOS_LIBRARY_PATH = r'D:\project1\city_bus_app\backend\venv\Lib\site-packages\osgeo\geos_c.dll'
+GDAL_LIBRARY_PATH = r'D:\project1\city_bus_app\backend\venv\Lib\site-packages\osgeo\gdal.dll'
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 

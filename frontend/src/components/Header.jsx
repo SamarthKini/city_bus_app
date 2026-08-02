@@ -1,42 +1,48 @@
-import { Bell, BusFront, Menu } from "lucide-react";
+export default function Header({ journeyMode = false, onBack, currentView = "home", setCurrentView }) {
+  const navItems = [
+    {
+      label: "Plan a trip",
+      value: "home",
+      onClick: () => setCurrentView?.("home"),
+    },
+    {
+      label: "Live tracking",
+      value: "live",
+      onClick: () => setCurrentView?.("live"),
+    },
+  ];
 
-export default function Header({ journeyMode = false, onBack }) {
   return (
     <header className="app-header">
-      <div className="header-navigation">
-        <button
-          aria-label="Open navigation"
-          className="header-icon-button"
-          type="button"
-        >
-          <Menu size={19} />
-        </button>
-        <div className="brand__icon">
-          <BusFront size={24} />
-        </div>
-        <div>
-          <p className="brand__title">City Bus Route Finder</p>
-          <p className="brand__subtitle">Plan your journey across Mangalore</p>
+      <div className="navbar-left">
+        <div className="navbar-logo"><span>MCT</span></div>
+
+        <div className="brand-text">
+          <h2>NAMMA MANGALURU</h2>
+          <p>ನಿಮ್ಮ ಬಸ್ ಸಂಗಾತಿ · live route finder</p>
         </div>
       </div>
 
-      {journeyMode ? (
-        <button
-          className="header-action"
-          type="button"
-          onClick={onBack}
-        >
-          Back to routes
-        </button>
-      ) : (
-        <button
-          aria-label="Notifications"
-          className="header-icon-button"
-          type="button"
-        >
-          <Bell size={18} />
-        </button>
-      )}
+      <nav className="navbar-links">
+        {!journeyMode ? (
+          <>
+            {navItems.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                className={`navbar-link ${currentView === item.value ? "navbar-link--active" : ""}`}
+                onClick={item.onClick}
+              >
+                {item.label}
+              </button>
+            ))}
+          </>
+        ) : (
+          <button className="header-action" onClick={onBack}>
+            ← Back
+          </button>
+        )}
+      </nav>
     </header>
   );
 }

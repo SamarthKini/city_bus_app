@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import { Compass } from "lucide-react";
 import FullRouteModal from "../components/FullRouteModal";
 import Header from "../components/Header";
-import RouteCard from "../components/RouteCard";
-import RouteMap from "../components/RouteMap";
+import ResultsList from "../components/ResultsList";
 import SearchCard from "../components/SearchCard";
 import { fetchConnections, fetchStops } from "../services/api";
-
+import { stops as mockStops, getSearchResults } from '../mockdata';
 function getStopName(stopId, stops) {
   const stop = stops.find((item) => item.id === stopId || item.id === Number(stopId));
   return stop ? stop.name : `Stop ${stopId}`;
@@ -48,29 +46,42 @@ function buildConnectionRoute(connection, stops) {
   };
 }
 
-export default function Home({ onStartJourney }) {
+export default function Home({ onStartJourney, onJourneySearch, setCurrentView, currentView }) {
   const [stops, setStops] = useState([]);
   const [sourceStop, setSourceStop] = useState("");
   const [destinationStop, setDestinationStop] = useState("");
   const [routes, setRoutes] = useState([]);
-  const [selectedRoute, setSelectedRoute] = useState(null);
+  // const [selectedRoute, setSelectedRoute] = useState(null);
   const [modalRoute, setModalRoute] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function loadStops() {
-      try {
-        const data = await fetchStops();
-        setStops(data);
-      } catch (requestError) {
-        console.error("Error fetching stops:", requestError);
-        setError("Unable to load bus stops. Please make sure the API is running.");
-      }
-    }
+  // useEffect(() => {
+  //   async function loadStops() {
+  //     try {
+  //       const data = await fetchStops();
+  //       setStops(data);
+  //     } catch (requestError) {
+  //       console.error("Error fetching stops:", requestError);
+  //       setError("Unable to load bus stops. Please make sure the API is running.");
+  //     }
+  //   }
 
-    loadStops();
-  }, []);
+  //   loadStops();
+  // }, []);
+  useEffect(() => {
+  async function loadStops() {
+    try {
+      const data = await fetchStops();
+      setStops(data.length > 0 ? data : mockStops);
+    } catch (requestError) {
+      console.error("Error fetching stops:", requestError);
+      setStops(mockStops); // fall back to mock data instead of leaving it empty
+    }
+  }
+
+  loadStops();
+}, []);
 
   async function handleSearch() {
     if (!sourceStop || !destinationStop) {
@@ -97,22 +108,46 @@ export default function Home({ onStartJourney }) {
       const availableRoutes = [...directRoutes, ...connectionRoutes];
 
       setRoutes(availableRoutes);
-      setSelectedRoute(availableRoutes[0] || null);
+      onJourneySearch?.(sourceStop, destinationStop);
+      setCurrentView("results");
+      // setSelectedRoute(availableRoutes[0] || null);
     } catch (requestError) {
-      console.error("Error fetching routes:", requestError);
-      setError("Failed to fetch routes. Please check your connection and try again.");
-      setRoutes([]);
-      setSelectedRoute(null);
+      // TEMPORARY — remove this fallback once the backend DB is seeded.
+      // Real behavior should be: show the error above instead.
+      console.warn("API unavailable, using mock data:", requestError);
+      const mockResults = getSearchResults(sourceStop, destinationStop);
+      setRoutes(mockResults);
+      onJourneySearch?.(sourceStop, destinationStop);
+      setCurrentView("results");
+      setError("");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="app-shell">
-      <Header />
-      <main className="home-layout">
-        <div className="home-search-row">
+  <div className="app-shell">
+    <Header currentView={currentView} setCurrentView={setCurrentView} />
+
+    <main className="home-layout">
+      <section className="hero-search">
+        <div className="hero-wrapper">
+          <div className="hero-content">
+            <span className="hero-pill">SMART BUS ROUTE FINDER</span>
+
+            <h1>
+              Catch the right bus,
+              <br />
+              every time.
+            </h1>
+
+            <p>
+              Plan a smoother trip with simple route comparisons and live
+              updates for every journey across Mangalore.
+            </p>
+
+          </div>
+
           <SearchCard
             destinationStop={destinationStop}
             error={error}
@@ -123,51 +158,64 @@ export default function Home({ onStartJourney }) {
             sourceStop={sourceStop}
             stops={stops}
           />
+        </div>
+      </section>
 
-          <aside className="home-layout__map">
-          <RouteMap route={selectedRoute} />
-          </aside>
+      {/* Results */}
+
+{/* Results */}
+
+{routes.length > 0 ? (
+
+  <ResultsList
+    routes={routes}
+    sourceStop={sourceStop}
+    destinationStop={destinationStop}
+    onViewFullRoute={setModalRoute}
+  />
+
+) : (
+
+  <>
+    <section className="how-section fade-up">
+
+      <h2>How it works</h2>
+
+      <div className="how-grid">
+
+        <div>
+          <span>01</span>
+          <h3>Enter your stops</h3>
+          <p>Select your boarding and destination stops.</p>
         </div>
 
-        {routes.length > 0 ? (
-          <section className="route-results">
-            <div className="results-heading">
-              <div>
-                <p className="eyebrow">Recommended route</p>
-                <h2>{routes.length} route{routes.length === 1 ? "" : "s"} found for your journey</h2>
-              </div>
-            </div>
+        <div>
+          <span>02</span>
+          <h3>Compare routes</h3>
+          <p>View direct and transfer buses with travel options.</p>
+        </div>
 
-            {routes.map((route, index) => (
-              <RouteCard
-                key={`${route.routeName}-${index}`}
-                route={route}
-                onStartJourney={onStartJourney}
-                onViewFullRoute={setModalRoute}
-              />
-            ))}
-          </section>
-        ) : (
-          <section className="empty-state surface-card fade-up">
-            <div className="empty-state__icon">
-              <Compass size={28} />
-            </div>
-            <div>
-              <h2>Ready when you are</h2>
-              <p>Search a source and destination to see the best city bus options.</p>
-            </div>
-          </section>
-        )}
-      </main>
+        <div>
+          <span>03</span>
+          <h3>Start your journey</h3>
+          <p>Pick the best route and begin your trip.</p>
+        </div>
 
-      <footer className="app-footer">
-        City Bus Route Finder · Mangalore public transit
-      </footer>
+      </div>
 
-      <FullRouteModal
-        route={modalRoute}
-        onClose={() => setModalRoute(null)}
-      />
-    </div>
-  );
+    </section>
+  </>
+
+)}
+    </main>
+
+    <footer className="app-footer" />
+
+    <FullRouteModal
+      route={modalRoute}
+      onClose={() => setModalRoute(null)}
+    />
+
+  </div>
+);
 }

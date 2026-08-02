@@ -1,0 +1,24 @@
+.home-layout { width: 100%; margin: 0; padding: 0; }
+.hero-section { display: none; }
+.hero-search {
+  display: flex;
+  min-height: calc(100vh - 76px);
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 64px 40px 80px;
+  background: linear-gradient(105deg, #10203d 0%, #17243d 58%, #282c32 100%);
+}
+.hero-wrapper {
+  display: grid;
+  width: min(1475px, 100%);
+  grid-template-columns: minmax(0, 1fr) 700px;
+  align-items: center;
+  gap: 80px;
+  margin: 0 auto;
+  padding: 0;
+}
+.hero-content { max-width: 610px; color: #fff; }
+.hero-pill { display: inline-block; margin: 0 0 28px; padding: 10px 17px; border-radius: 999px; background: #ffad00; color: #182542; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .7rem; font-weight: 800; letter-spacing: .08em; }
+.hero-content h1 { margin: 0 0 22px; color: #fff; font-size: clamp(3rem, 3.4vw, 3.5rem); font-weight: 760; line-height: 1.15; letter-spacing: -.035em; }
+.hero-content p { max-width: 590px; margin: 0; color: #e2e8f4; font-size: 1rem; line-height: 1.55; }

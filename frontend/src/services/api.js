@@ -22,6 +22,14 @@ export async function fetchConnections(fromStop, toStop) {
   return response.data;
 }
 
-export async function findNearestStop() {
-  // TODO: Call POST /api/neareststop with bus_number, latitude, and longitude.
+export async function findNearestStop(routeNumber, latitude, longitude) {
+  const response = await api.get("/nearest-stop/", {
+    params: {
+      route_number: routeNumber,
+      lat: latitude,
+      lng: longitude,
+    },
+  });
+
+  return response.data;
 }

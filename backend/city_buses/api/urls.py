@@ -16,5 +16,5 @@ router.register('route_stops', views.RouteStopViewset, basename='route_stop')
 urlpatterns = [
     path('', include(router.urls)),
     path('connections/', views.ConnectionRoutesAPIView.as_view(), name='connection-routes'),#will give you the connections
-    path('api/nearest-stop/', views.nearest_stop_on_route, name='nearest_stop'),
+    path('nearest-stop/', views.nearest_stop_on_route, name='nearest_stop'),
 ]
