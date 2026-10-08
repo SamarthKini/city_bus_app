@@ -10,7 +10,6 @@ router = DefaultRouter()
 router.register('stops', views.StopViewset, basename='stop')
 router.register('bus_routes', views.BusRouteNumberViewset, basename='bus_route')
 router.register('route_stops', views.RouteStopViewset, basename='route_stop')
-# those above 3 apis are for crud operations in regards to the stops, individaul stops, and bus routes
 
 
 urlpatterns = [
