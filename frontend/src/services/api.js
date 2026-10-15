@@ -11,6 +11,11 @@ export async function fetchStops() {
   return response.data;
 }
 
+export async function fetchRouteStops() {
+  const response = await api.get("/route_stops/");
+  return response.data;
+}
+
 export async function fetchConnections(fromStop, toStop) {
   const response = await api.get("/connections/", {
     params: {

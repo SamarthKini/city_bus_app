@@ -84,58 +84,65 @@ class ConnectionRoutesAPIView(APIView):
     
         
     def find_connection_routes(self, from_stop, to_stop): # Find routes that can connect from_stop to to_stop with one transfer
-        connection_routes = []
-        
-        from_routes = BusRouteNumberModel.objects.filter(
+        from_routes = list(BusRouteNumberModel.objects.filter(
             routestopmodel__stop=from_stop
-        ).distinct()
-        
-        to_routes = BusRouteNumberModel.objects.filter(
+        ).distinct().prefetch_related('stops'))
+
+        to_routes = list(BusRouteNumberModel.objects.filter(
             routestopmodel__stop=to_stop
-        ).distinct()
-        
+        ).distinct().prefetch_related('stops'))
+
+        route_by_id = {route.id: route for route in from_routes + to_routes}
+        route_stop_records = RouteStopModel.objects.filter(
+            route_id__in=route_by_id
+        ).select_related('stop').order_by('route_id', 'sequence')
+        stops_by_route = {}
+        for record in route_stop_records:
+            stops_by_route.setdefault(record.route_id, []).append(record)
+
+        connection_routes = []
         for from_route in from_routes:
-            from_route_stops = StopModel.objects.filter(
-                routestopmodel__route=from_route
-            ).exclude(id=from_stop.id)
-            
+            first_leg = stops_by_route.get(from_route.id, [])
+            origin_sequences = [record.sequence for record in first_leg if record.stop_id == from_stop.id]
+            if not origin_sequences:
+                continue
+            origin_sequence = min(origin_sequences)
+            transfers_after_origin = {
+                record.stop_id: record
+                for record in first_leg
+                if record.sequence > origin_sequence
+            }
+
             for to_route in to_routes:
                 if from_route.id == to_route.id:
-                    continue  
-                    
-                common_stops = from_route_stops.filter(
-                    routestopmodel__route=to_route
-                ).exclude(id=to_stop.id)
-                
-                for transfer_stop in common_stops:
-                    total_stops = (
-                        RouteStopModel.objects.filter(
-                            route=from_route, 
-                            stop=transfer_stop
-                        ).first().sequence -
-                        RouteStopModel.objects.filter(
-                            route=from_route, 
-                            stop=from_stop
-                        ).first().sequence +
-                        RouteStopModel.objects.filter(
-                            route=to_route, 
-                            stop=to_stop
-                        ).first().sequence -
-                        RouteStopModel.objects.filter(
-                            route=to_route, 
-                            stop=transfer_stop
-                        ).first().sequence
-                    )
-                    
+                    continue
+
+                second_leg = stops_by_route.get(to_route.id, [])
+                destination_sequences = [record.sequence for record in second_leg if record.stop_id == to_stop.id]
+                if not destination_sequences:
+                    continue
+                destination_sequence = min(destination_sequences)
+                transfers_before_destination = {
+                    record.stop_id: record
+                    for record in second_leg
+                    if record.sequence < destination_sequence
+                }
+
+                for transfer_stop_id in transfers_after_origin.keys() & transfers_before_destination.keys():
+                    first_transfer = transfers_after_origin[transfer_stop_id]
+                    second_transfer = transfers_before_destination[transfer_stop_id]
                     connection_routes.append({
                         'from_route': from_route,
                         'to_route': to_route,
-                        'transfer_stop': transfer_stop,
-                        'total_stops': abs(total_stops)
+                        'transfer_stop': first_transfer.stop,
+                        'total_stops': (
+                            first_transfer.sequence - origin_sequence
+                            + destination_sequence - second_transfer.sequence
+                        )
                     })
-        
+
         connection_routes.sort(key=lambda x: x['total_stops'])
-        
+
         serializer = ConnectionRouteSerializer(connection_routes, many=True)
         return serializer.data
     

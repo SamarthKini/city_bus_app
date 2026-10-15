@@ -217,7 +217,7 @@
 //     </section>
 //   );
 // }
-import { ArrowDown, ArrowRight, CircleDot, MapPin } from "lucide-react";
+import { ArrowDown, ArrowRight, CircleDot, LoaderCircle, MapPin } from "lucide-react";
 
 export default function SearchCard({
   stops,
@@ -245,6 +245,7 @@ export default function SearchCard({
             Source
 
             <select
+              id="source-stop-select"
               value={sourceStop}
               onChange={(e)=>onSourceChange(e.target.value)}
             >
@@ -282,6 +283,7 @@ export default function SearchCard({
             Destination
 
             <select
+              id="destination-stop-select"
               value={destinationStop}
               onChange={(e)=>onDestinationChange(e.target.value)}
             >
@@ -309,15 +311,12 @@ export default function SearchCard({
       <button
         className="primary-button search-button"
         disabled={loading}
+        aria-busy={loading}
         type="button"
         onClick={onSearch}
       >
 
-        {loading
-          ? "Searching Routes..."
-          : "Find buses"}
-
-        <ArrowRight size={19}/>
+        {loading ? <><LoaderCircle className="search-button__spinner" size={19} aria-hidden="true" />Searching routes…</> : <>Find buses<ArrowRight size={19}/></>}
 
       </button>
 

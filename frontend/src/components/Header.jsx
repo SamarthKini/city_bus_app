@@ -1,21 +1,12 @@
-export default function Header({ journeyMode = false, onBack, currentView = "home", setCurrentView }) {
-  const navItems = [
-    {
-      label: "Plan a trip",
-      value: "home",
-      onClick: () => setCurrentView?.("home"),
-    },
-    {
-      label: "Live tracking",
-      value: "live",
-      onClick: () => setCurrentView?.("live"),
-    },
-  ];
-
+export default function Header({ journeyMode = false, onBack }) {
   return (
     <header className="app-header">
       <div className="navbar-left">
-        <div className="navbar-logo"><span>MCT</span></div>
+        <img
+          className="navbar-logo"
+          src="/assets/namma-mangaluru-bus-location.png"
+          alt="Namma Mangaluru bus and location logo"
+        />
 
         <div className="brand-text">
           <h2>NAMMA MANGALURU</h2>
@@ -23,26 +14,11 @@ export default function Header({ journeyMode = false, onBack, currentView = "hom
         </div>
       </div>
 
-      <nav className="navbar-links">
-        {!journeyMode ? (
-          <>
-            {navItems.map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                className={`navbar-link ${currentView === item.value ? "navbar-link--active" : ""}`}
-                onClick={item.onClick}
-              >
-                {item.label}
-              </button>
-            ))}
-          </>
-        ) : (
+      {journeyMode && <nav className="navbar-links">
           <button className="header-action" onClick={onBack}>
             ← Back
           </button>
-        )}
-      </nav>
+      </nav>}
     </header>
   );
 }
